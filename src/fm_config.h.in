@@ -1,0 +1,2 @@
+#define fm_VERSION_MAJOR @fm_VERSION_MAJOR@
+#define fm_VERSION_MINOR @fm_VERSION_MINOR@
