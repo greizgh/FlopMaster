@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8)
 project (FlopMaster)
 set (fm_VERSION_MAJOR 1)
 set (fm_VERSION_MINOR 0)
-set (CMAKE_BUILD_TYPE Debug)
+set (CMAKE_BUILD_TYPE Release)
 configure_file(
     "${PROJECT_SOURCE_DIR}/src/fm_config.h.in"
     "${PROJECT_BINARY_DIR}/src/fm_config.h"
