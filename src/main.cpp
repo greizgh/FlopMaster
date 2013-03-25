@@ -111,6 +111,7 @@ int main(int argc, char* argv[])
                 midiin->setCallback(&callback, bridge);
                 midiin->ignoreTypes(false, false, false);
                 std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
+                if(fm_DEBUG) std::cout<<"Will output debug data"<<std::endl;
                 char input;
                 std::cin.get(input);
             }

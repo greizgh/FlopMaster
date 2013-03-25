@@ -1,6 +1,6 @@
 #include "ardflop.hpp"
+#include "fm_config.h"
 #include <string>
-#include <cmath>
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
@@ -37,6 +37,7 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
         /*Convert midi channel to arduino pin by
          * multiplying by 2*/
         char pin = (char)(2*(status-127));
+        if(fm_DEBUG) std::cout << "[Note-Off], pin:"<<(int)pin<<std::endl;
         send(pin, 0);
         currentperiod[status -128] = 0;
     }
@@ -46,24 +47,15 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
         int period = microperiods[(int)(msg->at(1))]/(2*ARD_RESOLUTION);
         if (msg->at(2)==0)//zero velocity event
         {
+            if(fm_DEBUG) std::cout << "[Note-On], pin:"<<(int)pin<<" 0 velocity event"<<std::endl;
             send(pin, 0);
             currentperiod[status-144]=0;
         }
         else
         {
+            if(fm_DEBUG) std::cout << "[Note-On], pin:"<<(int)pin<<", period:"<<period<<std::endl;
             send(pin, period);
             currentperiod[status-144]=period;
-        }
-    }
-    else if (status>223 && status<240)//pitch bending
-    {
-        if(currentperiod[status-224]!=0)
-        {
-            char pin = (char)(2*(status-223));
-            double pitchbend = (msg->at(2)<<8)+(msg->at(1));
-            int period = currentperiod[status-224]/pow((pitchbend-8192)/8192,2);
-            currentperiod[status-224]=period;
-            send(pin, period);
         }
     }
 }
@@ -81,7 +73,6 @@ void ardflop::send(char pin, unsigned char period)
     char p2 = (char)(period & 0xff);
     char message[] = {pin, p1, p2};
     boost::asio::write(serial, boost::asio::buffer(message, sizeof(message)));
-    //boost::asio::async_write(serial, boost::asio::buffer(message, sizeof(message)), handler);
 }
 void ardflop::reset()
 {
