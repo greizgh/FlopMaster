@@ -55,16 +55,17 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
             currentperiod[status-144]=period;
         }
     }
-    /*else if (status>223 && status<240)//pitch bending
+    else if (status>223 && status<240)//pitch bending
     {
         if(currentperiod[status-224]!=0)
         {
             char pin = (char)(2*(status-223));
             double pitchbend = (msg->at(2)<<8)+(msg->at(1));
             int period = currentperiod[status-224]/pow((pitchbend-8192)/8192,2);
+            currentperiod[status-224]=period;
             send(pin, period);
         }
-    }*/
+    }
 }
 ardflop::~ardflop()
 {
