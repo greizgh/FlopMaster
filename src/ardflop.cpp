@@ -17,7 +17,7 @@ int const ardflop::microperiods[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-ardflop::ardflop(const std::string PortName) : devname(PortName), ios(), serial(ios, devname)
+ardflop::ardflop(const std::string PortName) : devname(PortName), ios(), serial(ios, devname), note_on_received(0), note_off_received(0), note_on_played(0)
 {
     int currentperiod[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (not serial.is_open())
@@ -34,6 +34,7 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
 
     if (status > 127 && status < 144)//note off
     {
+        note_off_received++;
         /*Convert midi channel to arduino pin by
          * multiplying by 2*/
         char pin = (char)(2*(status-127));
@@ -43,6 +44,7 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
     }
     else if (status>143 && status<160)//note on
     {
+        note_on_received++;
         char pin = (char)(2*(status-143));
         int period = microperiods[(int)(msg->at(1))]/(2*ARD_RESOLUTION);
         if (msg->at(2)==0)//zero velocity event
@@ -53,6 +55,7 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
         }
         else
         {
+            note_on_played++;
             if(fm_DEBUG) std::cout << "[Note-On], pin:"<<(int)pin<<", period:"<<period<<std::endl;
             send(pin, period);
             currentperiod[status-144]=period;
@@ -63,10 +66,12 @@ ardflop::~ardflop()
 {
     reset();
     serial.close();
+    if(fm_DEBUG)  {
+        std::cout<<"Note-Off received: "<<note_off_received<<std::endl;
+        std::cout<<"Note-On received: "<<note_on_received<<std::endl;
+        std::cout<<"Note-On played: "<<note_on_played<<std::endl;
+    }
 }
-//const void ardflop::handler(const boost::system::error_code& error, std::size_t bytes_transfered)
-//{
-//}
 void ardflop::send(char pin, unsigned char period)
 {
     char p1 = (char)((period >> 8) & 0xff);
