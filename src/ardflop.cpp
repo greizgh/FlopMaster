@@ -2,6 +2,7 @@
 #include "fm_config.h"
 #include <string>
 #include <iostream>
+#include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
 int const ardflop::ARD_RESOLUTION = 40;
@@ -55,7 +56,7 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
         }
         else
         {
-            note_on_played++;
+            if(period!=0) note_on_played++;
             if(fm_DEBUG) std::cout << "[Note-On], pin:"<<(int)pin<<", period:"<<period<<std::endl;
             send(pin, period);
             currentperiod[status-144]=period;
@@ -72,12 +73,18 @@ ardflop::~ardflop()
         std::cout<<"Note-On played: "<<note_on_played<<std::endl;
     }
 }
+void ardflop::handler(const boost::system::error_code& error)
+{
+    if(error)
+        std::cerr<<error.message()<<std::endl;
+}
 void ardflop::send(char pin, unsigned char period)
 {
     char p1 = (char)((period >> 8) & 0xff);
     char p2 = (char)(period & 0xff);
     char message[] = {pin, p1, p2};
-    boost::asio::write(serial, boost::asio::buffer(message, sizeof(message)));
+    //boost::asio::write(serial, boost::asio::buffer(message, sizeof(message)));
+    boost::asio::async_write(serial, boost::asio::buffer(message, sizeof(message)),boost::bind(&ardflop::handler,this,boost::asio::placeholders::error));
 }
 void ardflop::reset()
 {

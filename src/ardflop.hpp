@@ -11,6 +11,7 @@ class ardflop
         const std::string devname;
         boost::asio::io_service ios;
         boost::asio::serial_port serial;
+        void handler(const boost::system::error_code& error);
         //Report variables
         unsigned int note_on_received;
         unsigned int note_off_received;
