@@ -103,7 +103,6 @@ int main(int argc, char* argv[])
     {
         RtMidiIn* midiin = 0;
         ardflop* bridge = new ardflop(port);
-        bridge->reset();
         try {
             midiin = new RtMidiIn();
             if (chooseMidiPort(midiin)!=false)

@@ -6,7 +6,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
 int const ardflop::ARD_RESOLUTION = 40;
-int const ardflop::microperiods[] = {
+unsigned short const ardflop::microperiods[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     30578, 28861, 27242, 25713, 24270, 22909, 21622, 20409, 19263, 18182, 17161, 16198, //C1 - B1
@@ -26,7 +26,7 @@ ardflop::ardflop(const std::string PortName) : devname(PortName), ios(), serial(
         std::cerr << "Failed to open serial port" << std::endl;
         return;
     }
-    boost::asio::serial_port_base::baud_rate rate(9600);
+    boost::asio::serial_port_base::baud_rate rate(500000);
     serial.set_option(rate);
 }
 void ardflop::processmidi(std::vector<unsigned char> *msg)
@@ -47,7 +47,7 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
     {
         note_on_received++;
         char pin = (char)(2*(status-143));
-        int period = microperiods[(int)(msg->at(1))]/(2*ARD_RESOLUTION);
+        unsigned short period = microperiods[(int)(msg->at(1))]/(2*ARD_RESOLUTION);
         if (msg->at(2)==0)//zero velocity event
         {
             if(fm_DEBUG) std::cout << "[Note-On], pin:"<<(int)pin<<" 0 velocity event"<<std::endl;
@@ -78,13 +78,14 @@ void ardflop::handler(const boost::system::error_code& error)
     if(error)
         std::cerr<<error.message()<<std::endl;
 }
-void ardflop::send(char pin, unsigned char period)
+void ardflop::send(char pin, unsigned short period)
 {
-    char p1 = (char)((period >> 8) & 0xff);
-    char p2 = (char)(period & 0xff);
-    char message[] = {pin, p1, p2};
-    //boost::asio::write(serial, boost::asio::buffer(message, sizeof(message)));
-    boost::asio::async_write(serial, boost::asio::buffer(message, sizeof(message)),boost::bind(&ardflop::handler,this,boost::asio::placeholders::error));
+    char p1 = (char)(period & 0x00ff);
+    char p2 = (char)(period & 0xff00);
+    char msg[]={pin, p1, p2};
+    boost::asio::write(serial, boost::asio::buffer(msg, sizeof(msg)));
+    //boost::asio::async_write(serial, boost::asio::buffer(message, sizeof(message)),boost::bind(&ardflop::handler,this,boost::asio::placeholders::error));
+    if(fm_DEBUG){std::cout<<"Sent: "<<(int)pin<<","<<(int)p1<<","<<(int)p2<<std::endl;}
 }
 void ardflop::reset()
 {

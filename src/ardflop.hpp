@@ -17,10 +17,10 @@ class ardflop
         unsigned int note_off_received;
         unsigned int note_on_played;
         //arduino relative members
-        static const int microperiods[];
+        static const unsigned short microperiods[];
         static const int ARD_RESOLUTION;
         int currentperiod[16];
-        void send(char pin, unsigned char period);
+        void send(char pin, unsigned short period);
 
     public:
         ardflop(const std::string PortName);
