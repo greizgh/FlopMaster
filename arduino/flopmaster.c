@@ -1,3 +1,20 @@
+/*
+ * Copyright 2013 Greizgh <greizgh@gmail.com>
+ *
+ * This file is part of FlopMaster.
+ * FlodMaster is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * FlopMaster is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with FlopMaster.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #define F_CPU 16000000UL
 #define BAUD 500000
 #include <util/setbaud.h>
@@ -23,7 +40,7 @@ static void timer_init(){
     //Enable CTC with CK/8 prescaler
     TCCR0A |= _BV(WGM01);
     TCCR0B |= _BV(CS01);
-    //Count until 80
+    //Count until 80 -> period of 40µs
     OCR0A = 0x50;
     //Enable OCR0A compare match interrupt
     TIMSK0 |= _BV(OCIE0A);
@@ -173,7 +190,7 @@ ISR(TIMER0_COMPA_vect)
         ++status.tick[14];
         if(status.tick[14] >= status.period[14]){
             status.tick[14]=0;
-            if(status.cur_pos[12]>=status.max_pos[14]){
+            if(status.cur_pos[14]>=status.max_pos[14]){
                 PORTC |= _BV(PC1);
                 status.direction[15]=1;
             }

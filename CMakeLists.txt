@@ -1,8 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
 #Project config
 project (FlopMaster)
-set (fm_VERSION_MAJOR 1)
-set (fm_VERSION_MINOR 2)
+set (fm_VERSION_MAJOR 2)
+set (fm_VERSION_MINOR 0)
 IF(NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
