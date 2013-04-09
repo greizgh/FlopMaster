@@ -14,7 +14,7 @@
 
  * You should have received a copy of the GNU General Public License
  * along with FlopMaster.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 #include "ardflop.hpp"
 #include "fm_config.h"
 #include <string>
@@ -100,8 +100,8 @@ void ardflop::send(char pin, unsigned short period)
     char p1 = (char)(period & 0x00ff);
     char p2 = (char)(period & 0xff00);
     char msg[]={pin, p1, p2};
-    boost::asio::write(serial, boost::asio::buffer(msg, sizeof(msg)));
-    //boost::asio::async_write(serial, boost::asio::buffer(message, sizeof(message)),boost::bind(&ardflop::handler,this,boost::asio::placeholders::error));
+    //boost::asio::write(serial, boost::asio::buffer(msg, sizeof(msg)));
+    boost::asio::async_write(serial, boost::asio::buffer(msg, sizeof(msg)),boost::bind(&ardflop::handler,this,boost::asio::placeholders::error));
     if(fm_DEBUG){std::cout<<"Sent: "<<(int)pin<<","<<(int)p1<<","<<(int)p2<<std::endl;}
 }
 void ardflop::reset()

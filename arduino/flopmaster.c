@@ -14,7 +14,7 @@
 
  * You should have received a copy of the GNU General Public License
  * along with FlopMaster.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 #define F_CPU 16000000UL
 #define BAUD 500000
 #include <util/setbaud.h>
