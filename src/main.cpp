@@ -76,6 +76,7 @@ int main(int argc, char* argv[])
     desc.add_options()
         ("help,h","show this message")
         ("version,v","show version information")
+        ("verbose,V","display some debug info")
         ("port,p",po::value<string>(&port),"specify serial port to use");
     po::positional_options_description p;
     p.add("port", -1);
@@ -100,6 +101,10 @@ int main(int argc, char* argv[])
     {
         cout << "FlopMaster version " << fm_VERSION_MAJOR << "." << fm_VERSION_MINOR << endl;
         return 1;
+    }
+    if(vm.count("verbose"))
+    {
+        fm_DEBUG=true;
     }
     if(vm.count("port"))
     {
