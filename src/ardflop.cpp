@@ -16,6 +16,7 @@
  * along with FlopMaster.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ardflop.hpp"
+#include "monitor.hpp"
 #include "fm_config.h"
 #include <string>
 #include <iostream>
@@ -35,7 +36,7 @@ unsigned short const ardflop::microperiods[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-ardflop::ardflop(const std::string PortName) : devname(PortName), ios(), serial(ios, devname), note_on_received(0), note_off_received(0), note_on_played(0)
+ardflop::ardflop(const std::string PortName) : devname(PortName), ios(), serial(ios, devname), ardmon()
 {
     int currentperiod[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (not serial.is_open())
@@ -52,29 +53,26 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
 
     if (status > 127 && status < 144)//note off
     {
-        note_off_received++;
         /*Convert midi channel to arduino pin by
          * multiplying by 2*/
         char pin = (char)(2*(status-127));
-        if(fm_DEBUG) std::cout << "[Note-Off], pin:"<<(int)pin<<std::endl;
+        ardmon.note_off_signal(pin);
         send(pin, 0);
         currentperiod[status -128] = 0;
     }
     else if (status>143 && status<160)//note on
     {
-        note_on_received++;
         char pin = (char)(2*(status-143));
         unsigned short period = microperiods[(int)(msg->at(1))]/(2*ARD_RESOLUTION);
         if (msg->at(2)==0)//zero velocity event
         {
-            if(fm_DEBUG) std::cout << "[Note-On], pin:"<<(int)pin<<" 0 velocity event"<<std::endl;
+            ardmon.note_off_signal(pin);
             send(pin, 0);
             currentperiod[status-144]=0;
         }
         else
         {
-            if(period!=0) note_on_played++;
-            if(fm_DEBUG) std::cout << "[Note-On], pin:"<<(int)pin<<", period:"<<period<<std::endl;
+            ardmon.note_on_signal(pin, msg->at(1), period);
             send(pin, period);
             currentperiod[status-144]=period;
         }
@@ -84,11 +82,7 @@ ardflop::~ardflop()
 {
     reset();
     serial.close();
-    if(fm_DEBUG)  {
-        std::cout<<"Note-Off received: "<<note_off_received<<std::endl;
-        std::cout<<"Note-On received: "<<note_on_received<<std::endl;
-        std::cout<<"Note-On played: "<<note_on_played<<std::endl;
-    }
+    ardmon.print_stats();
 }
 void ardflop::handler(const boost::system::error_code& error)
 {
@@ -102,11 +96,11 @@ void ardflop::send(char pin, unsigned short period)
     char msg[]={pin, p1, p2};
     //boost::asio::write(serial, boost::asio::buffer(msg, sizeof(msg)));
     boost::asio::async_write(serial, boost::asio::buffer(msg, sizeof(msg)),boost::bind(&ardflop::handler,this,boost::asio::placeholders::error));
-    if(fm_DEBUG){std::cout<<"Sent: "<<(int)pin<<","<<(int)p1<<","<<(int)p2<<std::endl;}
+    ardmon.serial_send_signal(msg);
 }
 void ardflop::reset()
 {
-    std::cout << "Resetting drives..." << std::endl;
-    unsigned char message[] = {100,0,0};
-    boost::asio::write(serial, boost::asio::buffer(message));
+    char message[] = {100,0,0};
+    boost::asio::write(serial, boost::asio::buffer(message, sizeof(message)));
+    ardmon.serial_send_signal(message);
 }

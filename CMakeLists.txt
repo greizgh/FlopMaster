@@ -15,8 +15,8 @@ else()
 endif(CMAKE_BUILD_TYPE STREQUAL "Release")
 message("Build type: " ${CMAKE_BUILD_TYPE})
 configure_file(
-    "${PROJECT_SOURCE_DIR}/src/fm_config.h.in"
-    "${PROJECT_BINARY_DIR}/src/fm_config.h"
+    "${PROJECT_SOURCE_DIR}/src/fm_config.cpp.in"
+    "${PROJECT_BINARY_DIR}/src/fm_config.cpp"
     )
 set(EXECUTABLE_OUTPUT_PATH bin/${CMAKE_BUILD_TYPE})
 set(LIBRARY_OUTPUT_PATH lib/${CMAKE_BUILD_TYPE})

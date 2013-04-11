@@ -4,7 +4,7 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 bin/
-src/fm_config.h
 arduino/FlopMaster
 arduino/FlopMaster.hex
 arduino/flopmaster.o
+src/fm_config.cpp

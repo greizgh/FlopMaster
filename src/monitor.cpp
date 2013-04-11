@@ -1,0 +1,61 @@
+/*
+ * Copyright 2013 Greizgh <greizgh@gmail.com>
+ *
+ * This file is part of FlopMaster.
+ * FlodMaster is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * FlopMaster is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with FlopMaster.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#include "monitor.hpp"
+#include "fm_config.h"
+#include <iostream>
+#include <iomanip>
+ardmonitor::ardmonitor() : note_on_played(0), note_on_received(0), note_off_received(0), outpt(std::cout)
+{
+}
+ardmonitor::ardmonitor(std::ostream &output=std::cout) : note_on_played(0), note_on_received(0), note_off_received(0), outpt(output)
+{
+}
+void ardmonitor::note_off_signal(int pin)
+{
+    note_off_received++;
+    if(fm_DEBUG){
+        outpt<<"[Note-Off] pin: "<<pin<<std::endl;
+    }
+}
+void ardmonitor::note_on_signal(int pin, int note, int period)
+{
+    note_on_received++;
+    if(fm_DEBUG){
+        outpt<<"[Note-On] pin: "<<pin<<", note: "<<note<<", period: "<<period<<std::endl;
+    }
+    if (period!=0) note_on_played++;
+}
+void ardmonitor::print_stats()
+{
+    outpt<<"Received "<<note_on_received<<" note-on signals."<<std::endl;
+    outpt<<"Received "<<note_off_received<<" note-off signals."<<std::endl;
+    outpt<<"Really played "<<note_on_played<<" notes."<<std::endl;
+    if(note_on_received>0)
+    {
+        double ratio=(float)note_on_played/(float)note_on_received;
+        ratio= (int)(ratio*100);
+        outpt<<"Played "<<ratio<<"% of total notes."<<std::endl;
+    }
+}
+void ardmonitor::serial_send_signal(char message[])
+{
+    if(sizeof(message)==3)
+        outpt<<"Sent: "<<message[0]<<","<<message[1]<<","<<message[2]<<std::endl;
+    if(message[0]==100)
+        outpt<<"Sent reset signal"<<std::endl;
+}
