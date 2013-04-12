@@ -35,6 +35,7 @@ file(
     GLOB_RECURSE
     source_files
     src/*
+    ${PROJECT_BINARY_DIR}/src/*
     )
 #FlopMaster executable
 add_executable(

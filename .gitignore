@@ -8,3 +8,4 @@ arduino/FlopMaster
 arduino/FlopMaster.hex
 arduino/flopmaster.o
 src/fm_config.cpp
+build
