@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with FlopMaster.  If not, see <http://www.gnu.org/licenses/>.
 TARGET = FlopMaster
+#Flavor: purenote or none
+FLAVOR = none
 MCU = atmega328p
 CPU_FREQ = 16000000UL
 PORT = /dev/ttyACM0
@@ -24,7 +26,11 @@ OBJCOPY = avr-objcopy
 AVRDUDE = avrdude
 CFLAGS = -Os -D F_CPU=$(CPU_FREQ) -mmcu=$(MCU) -Wall -std=c99
 
-SRC = $(wildcard *.c)
+ifeq ($(FLAVOR),purenote)
+    SRC = flopmaster_pure.c
+else
+    SRC = flopmaster.c
+endif
 OBJ = $(SRC:.c=.o)
 
 all: $(TARGET).hex
