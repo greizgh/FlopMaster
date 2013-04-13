@@ -33,7 +33,7 @@ class ardflop
         //Monitor
         ardmonitor ardmon;
         //arduino relative members
-        static const unsigned short microperiods[];
+        static const unsigned int microperiods[];
         static const int ARD_RESOLUTION;
         int currentperiod[16];
         void send(char pin, unsigned short period);
