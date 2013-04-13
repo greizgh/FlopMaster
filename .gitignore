@@ -6,6 +6,6 @@ install_manifest.txt
 bin/
 arduino/FlopMaster
 arduino/FlopMaster.hex
-*.o
+arduino/flopmaster.o
 src/fm_config.cpp
 build
