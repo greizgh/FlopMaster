@@ -259,14 +259,11 @@ void reset(){
     PORTB |= (_BV(PB1) | _BV(PB3) | _BV(PB5));
     PORTC |= (_BV(PC1) | _BV(PC3));
     //Pulse step pins
-    for(int track=0;track<80;track++){
-        PORTD |= (_BV(PD2) | _BV(PD4) | _BV(PD6));
-        PORTD &= ~(_BV(PD2) | _BV(PD4) | _BV(PD6));
-        PORTB |= (_BV(PB0) | _BV(PB2) | _BV(PB4));
-        PORTB &= ~(_BV(PB0) | _BV(PB2) | _BV(PB4));
-        PORTC |= (_BV(PC0) | _BV(PC2));
-        PORTC &= ~(_BV(PC0) | _BV(PC2));
-        _delay_ms(10);
+    for(int track=0;track<160;track++){
+        PORTD ^= (_BV(PD2) | _BV(PD4) | _BV(PD6));
+        PORTB ^= (_BV(PB0) | _BV(PB2) | _BV(PB4));
+        PORTC ^= (_BV(PC0) | _BV(PC2));
+        _delay_ms(5);
     }
 }
 int main() { 
