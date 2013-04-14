@@ -25,6 +25,8 @@
 class ardflop
 {
     private:
+        //Midi
+        float corrector;
         //Serial relative members
         const std::string devname;
         boost::asio::io_service ios;
@@ -35,13 +37,13 @@ class ardflop
         //arduino relative members
         static const unsigned int microperiods[];
         static const int ARD_RESOLUTION;
-        int currentperiod[16];
         void send(char pin, unsigned short period);
 
     public:
         ardflop(const std::string PortName);
         ~ardflop();
         void reset();
+        void transpose(int octave);
         void processmidi(std::vector<unsigned char> *msg);
 };
 #endif

@@ -72,11 +72,13 @@ bool chooseMidiPort( RtMidiIn *rtmidi )
 int main(int argc, char* argv[])
 {
     string port;
+    int octave=0;
     po::options_description desc("Usage: FlopMaster [OPTIONS] SERIAL_PORT");
     desc.add_options()
         ("help,h","show this message")
         ("version,v","show version information")
         ("verbose,V","display some debug info")
+        ("transpose,t",po::value<int>(&octave),"transpose notes of specified octave")
         ("port,p",po::value<string>(&port),"specify serial port to use");
     po::positional_options_description p;
     p.add("port", -1);
@@ -110,6 +112,7 @@ int main(int argc, char* argv[])
     {
         RtMidiIn* midiin = 0;
         ardflop* bridge = new ardflop(port);
+        bridge->transpose(octave);
         try {
             midiin = new RtMidiIn();
             if (chooseMidiPort(midiin)!=false)

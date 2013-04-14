@@ -37,9 +37,8 @@ unsigned int const ardflop::microperiods[] = {
     239,225,213,201,190,179,169,159,150,142,134,127
 };
 
-ardflop::ardflop(const std::string PortName) : devname(PortName), ios(), serial(ios, devname), ardmon()
+ardflop::ardflop(const std::string PortName) : devname(PortName), ios(), serial(ios, devname), ardmon(), corrector(0)
 {
-    int currentperiod[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (not serial.is_open())
     {
         std::cerr << "Failed to open serial port" << std::endl;
@@ -59,25 +58,31 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
         char pin = (char)(2*(status-127));
         ardmon.note_off_signal(pin);
         send(pin, 0);
-        currentperiod[status -128] = 0;
     }
     else if (status>143 && status<160)//note on
     {
         char pin = (char)(2*(status-143));
-        unsigned short period = microperiods[(int)(msg->at(1))]/(ARD_RESOLUTION);
+        unsigned short period = microperiods[(int)(msg->at(1))]/(ARD_RESOLUTION)*corrector;
         if (msg->at(2)==0)//zero velocity event
         {
             ardmon.note_off_signal(pin);
             send(pin, 0);
-            currentperiod[status-144]=0;
         }
         else
         {
             ardmon.note_on_signal(pin, msg->at(1), period);
             send(pin, period);
-            currentperiod[status-144]=period;
         }
     }
+}
+void ardflop::transpose(int octave)
+{
+    if(octave==0)
+        corrector=1;
+    if(octave<0 && octave>-4)
+        corrector = -2*octave;
+    if(octave>0 && octave<4)
+        corrector = 1/(2*octave);
 }
 ardflop::~ardflop()
 {
