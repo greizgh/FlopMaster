@@ -5,6 +5,7 @@ This software is split in two parts: FlopMaster on your computer and the control
 
 ##Features##
 * Connect to any midi output (sequencer, midi keyboard...)
+* Transpose notes being played
 * Can open a virtual port (Linux with Alsa driver and MacOSX only)
 
 ##Hardware##

@@ -19,6 +19,7 @@
 #include "fm_config.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdio>
 ardmonitor::ardmonitor() : note_on_played(0), note_on_received(0), note_off_received(0), outpt(std::cout)
 {
 }
@@ -44,18 +45,23 @@ void ardmonitor::print_stats()
 {
     outpt<<"Received "<<note_on_received<<" note-on signals."<<std::endl;
     outpt<<"Received "<<note_off_received<<" note-off signals."<<std::endl;
-    outpt<<"Really played "<<note_on_played<<" notes."<<std::endl;
-    if(note_on_received>0)
-    {
-        double ratio=(float)note_on_played/(float)note_on_received;
-        ratio= (int)(ratio*100);
-        outpt<<"Played "<<ratio<<"% of total notes."<<std::endl;
-    }
+    /*
+     * No more used, since we have periods from C0 to B4
+     *outpt<<"Really played "<<note_on_played<<" notes."<<std::endl;
+     *if(note_on_received>0)
+     *{
+     *    double ratio=(float)note_on_played/(float)note_on_received;
+     *    ratio= (int)(ratio*100);
+     *    outpt<<"Played "<<ratio<<"% of total notes."<<std::endl;
+     *}
+     */
 }
 void ardmonitor::serial_send_signal(char message[])
 {
-    if(sizeof(message)==3)
-        outpt<<"Sent: "<<message[0]<<","<<message[1]<<","<<message[2]<<std::endl;
+    if(sizeof(message)>=3 && fm_DEBUG)
+    {
+        outpt<<"Sent: "<<std::showbase<<std::hex<<(unsigned int)(unsigned char)(message[0])<<", "<<(unsigned int)(unsigned char)(message[1])<<", "<<(unsigned int)(unsigned char)(message[2])<<std::dec<<std::endl;
+    }
     if(message[0]==100)
         outpt<<"Sent reset signal"<<std::endl;
 }

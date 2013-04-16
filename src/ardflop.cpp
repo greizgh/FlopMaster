@@ -20,9 +20,6 @@
 #include "fm_config.h"
 #include <string>
 #include <iostream>
-#include <boost/bind.hpp>
-#include <boost/asio.hpp>
-#include <boost/asio/serial_port.hpp>
 int const ardflop::ARD_RESOLUTION = 40;
 unsigned int const ardflop::microperiods[] = {
     //A4=440Hz
@@ -37,15 +34,8 @@ unsigned int const ardflop::microperiods[] = {
     239,225,213,201,190,179,169,159,150,142,134,127
 };
 
-ardflop::ardflop(const std::string PortName) : devname(PortName), ios(), serial(ios, devname), ardmon(), corrector(0)
+ardflop::ardflop(const std::string PortName) : ardmon(), corrector(0), serialcom(PortName)
 {
-    if (not serial.is_open())
-    {
-        std::cerr << "Failed to open serial port" << std::endl;
-        return;
-    }
-    boost::asio::serial_port_base::baud_rate rate(500000);
-    serial.set_option(rate);
 }
 void ardflop::processmidi(std::vector<unsigned char> *msg)
 {
@@ -57,7 +47,7 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
          * multiplying by 2*/
         char pin = (char)(2*(status-127));
         ardmon.note_off_signal(pin);
-        send(pin, 0);
+        serialcom.play(pin, 0);
     }
     else if (status>143 && status<160)//note on
     {
@@ -66,12 +56,12 @@ void ardflop::processmidi(std::vector<unsigned char> *msg)
         if (msg->at(2)==0)//zero velocity event
         {
             ardmon.note_off_signal(pin);
-            send(pin, 0);
+            serialcom.play(pin, 0);
         }
         else
         {
             ardmon.note_on_signal(pin, msg->at(1), period);
-            send(pin, period);
+            serialcom.play(pin, period);
         }
     }
 }
@@ -86,27 +76,5 @@ void ardflop::transpose(int octave)
 }
 ardflop::~ardflop()
 {
-    reset();
-    serial.close();
     ardmon.print_stats();
-}
-void ardflop::handler(const boost::system::error_code& error)
-{
-    if(error)
-        std::cerr<<error.message()<<std::endl;
-}
-void ardflop::send(char pin, unsigned short period)
-{
-    char p1 = (char)(period & 0x00ff);
-    char p2 = (char)(period & 0xff00);
-    char msg[]={pin, p1, p2};
-    //boost::asio::write(serial, boost::asio::buffer(msg, sizeof(msg)));
-    boost::asio::async_write(serial, boost::asio::buffer(msg, sizeof(msg)),boost::bind(&ardflop::handler,this,boost::asio::placeholders::error));
-    ardmon.serial_send_signal(msg);
-}
-void ardflop::reset()
-{
-    char message[] = {100,0,0};
-    boost::asio::write(serial, boost::asio::buffer(message, sizeof(message)));
-    ardmon.serial_send_signal(message);
 }

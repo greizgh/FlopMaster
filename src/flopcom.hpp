@@ -15,28 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with FlopMaster.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ARDFLOP_H
-#define ARDFLOP_H
-#include <string>
+#ifndef FLOPCOM_H
+#define FLOPCOM_H
 #include "monitor.hpp"
-#include "flopcom.hpp"
-class ardflop
+#include <boost/asio.hpp>
+#include <boost/asio/serial_port.hpp>
+class flopcom
 {
     private:
-        //Midi
-        float corrector;
-        //Monitor
         ardmonitor ardmon;
-        //Serial com
-        flopcom serialcom;
-        //arduino relative members
-        static const unsigned int microperiods[];
-        static const int ARD_RESOLUTION;
-
+        //Serial relative members
+        const std::string devname;
+        boost::asio::io_service ios;
+        boost::asio::serial_port serial;
+        void handler(const boost::system::error_code& error);
+        void send(char message[]);
     public:
-        ardflop(const std::string PortName);
-        ~ardflop();
-        void transpose(int octave);
-        void processmidi(std::vector<unsigned char> *msg);
+        flopcom(const std::string PortName);
+        ~flopcom();
+        void reset();
+        void play(char pin, unsigned short period);
 };
 #endif
