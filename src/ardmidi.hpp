@@ -15,33 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with FlopMaster.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ARDFLOP_H
-#define ARDFLOP_H
-#include <string>
+#ifndef ARDMIDI_H
+#define ARDMIDI_H
 #include <vector>
-#include "monitor.hpp"
-#include "ardmidi.hpp"
-#include "flopcom.hpp"
-class ardflop
+namespace midistatus
+{
+    enum signal {
+        NOTE_ON,
+        NOTE_OFF
+    };
+}
+class ardmidi
 {
     private:
-        //Midi play
-        float corrector;
-        bool dispatchnotes;
-        std::vector<unsigned short> pool;
-        void dispatch(ardmidi message);
-        //Monitor
-        ardmonitor ardmon;
-        //Serial com
-        flopcom serialcom;
-        //arduino relative members
-        static const unsigned int microperiods[];
-        static const int ARD_RESOLUTION;
-
+        std::vector<unsigned char> message;
+        int note;
+        int velocity;
+        int channel;
+        midistatus::signal msg_status;
     public:
-        ardflop(const std::string PortName, int poolsize);
-        ~ardflop();
-        void transpose(int octave);
-        void processmidi(ardmidi message);
+        ardmidi(std::vector<unsigned char> msg);
+        int get_note() const;
+        int get_velocity() const;
+        int get_channel() const;
+        midistatus::signal get_status() const;
 };
 #endif

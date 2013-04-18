@@ -18,6 +18,7 @@
 #include <iostream>
 #include <string>
 #include "ardflop.hpp"
+#include "ardmidi.hpp"
 #include "RtMidi/RtMidi.h"
 #include "RtMidi/RtError.h"
 #include "fm_config.h"
@@ -27,7 +28,9 @@ using namespace std;
 void callback(double deltatime, std::vector< unsigned char > *message, void *userdata)
 {
     ardflop *bridge = (ardflop*)(userdata);
-    bridge->processmidi(message);
+    std::vector<unsigned char> midi = *message;
+    ardmidi midimsg(midi);
+    bridge->processmidi(midimsg);
 }
 
 bool chooseMidiPort( RtMidiIn *rtmidi )
@@ -73,13 +76,15 @@ int main(int argc, char* argv[])
 {
     string port;
     int octave=0;
+    int poolsize=0;
     po::options_description desc("Usage: FlopMaster [OPTIONS] SERIAL_PORT");
     desc.add_options()
-        ("help,h","show this message")
-        ("version,v","show version information")
-        ("verbose,V","display some debug info")
+        ("port,p",po::value<string>(&port),"specify serial port to use")
         ("transpose,t",po::value<int>(&octave),"transpose notes of specified octave")
-        ("port,p",po::value<string>(&port),"specify serial port to use");
+        ("dispatch,d",po::value<int>(&poolsize),"dispatch notes between given number of drives")
+        ("verbose,V","display some debug info")
+        ("help,h","show this message")
+        ("version,v","show version information");
     po::positional_options_description p;
     p.add("port", -1);
     po::variables_map vm;
@@ -111,7 +116,7 @@ int main(int argc, char* argv[])
     if(vm.count("port"))
     {
         RtMidiIn* midiin = 0;
-        ardflop* bridge = new ardflop(port);
+        ardflop* bridge = new ardflop(port, poolsize);
         bridge->transpose(octave);
         try {
             midiin = new RtMidiIn();

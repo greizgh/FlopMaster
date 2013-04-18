@@ -18,7 +18,9 @@
 #include "ardflop.hpp"
 #include "monitor.hpp"
 #include "fm_config.h"
+#include "ardmidi.hpp"
 #include <string>
+#include <vector>
 #include <iostream>
 int const ardflop::ARD_RESOLUTION = 40;
 unsigned int const ardflop::microperiods[] = {
@@ -34,34 +36,66 @@ unsigned int const ardflop::microperiods[] = {
     239,225,213,201,190,179,169,159,150,142,134,127
 };
 
-ardflop::ardflop(const std::string PortName) : ardmon(), corrector(0), serialcom(PortName)
+ardflop::ardflop(const std::string PortName, int poolsize) : ardmon(), corrector(0), serialcom(PortName), dispatchnotes(false)
 {
+    if(poolsize>0)
+        dispatchnotes=true;
+    pool = std::vector<unsigned short>(poolsize,0);
 }
-void ardflop::processmidi(std::vector<unsigned char> *msg)
+void ardflop::processmidi(ardmidi message)
 {
-    unsigned char status = msg->at(0);
+    if(dispatchnotes==false)
+    {
+        unsigned short period=0;
 
-    if (status > 127 && status < 144)//note off
-    {
-        /*Convert midi channel to arduino pin by
-         * multiplying by 2*/
-        char pin = (char)(2*(status-127));
-        ardmon.note_off_signal(pin);
-        serialcom.play(pin, 0);
-    }
-    else if (status>143 && status<160)//note on
-    {
-        char pin = (char)(2*(status-143));
-        unsigned short period = microperiods[(int)(msg->at(1))]/(ARD_RESOLUTION)*corrector;
-        if (msg->at(2)==0)//zero velocity event
+        //Convert midi channel to arduino pin by multiplying by 2
+        char pin = (char)(2*(message.get_channel()));
+        if(message.get_status()==midistatus::NOTE_ON)
         {
-            ardmon.note_off_signal(pin);
-            serialcom.play(pin, 0);
+            period = microperiods[message.get_note()]/(ARD_RESOLUTION)*corrector;
+            ardmon.note_on_signal(pin, message.get_note(), period);
         }
-        else
+        else {
+            //note off
+            period = 0;
+            ardmon.note_off_signal(pin);
+        }
+        serialcom.play(pin, period);
+    }
+    else
+        dispatch(message);
+}
+void ardflop::dispatch(ardmidi message)
+{
+    if(message.get_status()==midistatus::NOTE_ON)
+    {
+        bool played=false;
+        for(int i=0;i<pool.size();i++)
         {
-            ardmon.note_on_signal(pin, msg->at(1), period);
-            serialcom.play(pin, period);
+            if(pool[i]==0)
+            {
+                pool[i]=message.get_note();
+                unsigned short period = microperiods[message.get_note()]/(ARD_RESOLUTION)*corrector;
+                char pin = i*2;
+                ardmon.note_on_signal(pin, message.get_note(), period);
+                serialcom.play(pin, period);
+                played=true;
+            }
+        }
+        /*if(played==false)
+            //signal that we couldn't have played the note*/
+    }
+    else if(message.get_status()==midistatus::NOTE_OFF)
+    {
+        for(int i=0;i<pool.size();i++)
+        {
+            if(pool[i]==message.get_note())
+            {
+                pool[i]=0;
+                char pin = i*2;
+                ardmon.note_off_signal(pin);
+                serialcom.play(pin, 0);
+            }
         }
     }
 }
