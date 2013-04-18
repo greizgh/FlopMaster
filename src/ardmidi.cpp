@@ -17,14 +17,14 @@
  */
 #include "ardmidi.hpp"
 #include <vector>
-ardmidi::ardmidi(std::vector<unsigned char> msg) : message(msg)
+ardmidi::ardmidi(std::vector<unsigned char> *message) :  msg_status(midistatus::UNKNOWN)
 {
-    if(sizeof(message)>=3)
+    if(message->size()>=3)
     {
-        note = message[1];
-        velocity = message[2];
+        note = message->at(1);
+        velocity = message->at(2);
     }
-    unsigned char status = message[0];
+    unsigned char status = message->at(0);
     if (status > 127 && status < 144)//note off
     {
         channel = status - 127;

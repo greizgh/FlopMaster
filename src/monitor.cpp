@@ -19,7 +19,6 @@
 #include "fm_config.h"
 #include <iostream>
 #include <iomanip>
-#include <cstdio>
 ardmonitor::ardmonitor() : note_on_played(0), note_on_received(0), note_off_received(0), outpt(std::cout)
 {
 }
@@ -64,4 +63,9 @@ void ardmonitor::serial_send_signal(char message[])
     }
     if(message[0]==100)
         outpt<<"Sent reset signal"<<std::endl;
+}
+void ardmonitor::pool_note_drop(int note)
+{
+    if(fm_DEBUG)
+        outpt<<"[Pool] overflow, note dropped: "<<note<<std::endl;
 }

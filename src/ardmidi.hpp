@@ -21,6 +21,7 @@
 namespace midistatus
 {
     enum signal {
+        UNKNOWN,
         NOTE_ON,
         NOTE_OFF
     };
@@ -28,13 +29,12 @@ namespace midistatus
 class ardmidi
 {
     private:
-        std::vector<unsigned char> message;
         int note;
         int velocity;
         int channel;
         midistatus::signal msg_status;
     public:
-        ardmidi(std::vector<unsigned char> msg);
+        ardmidi(std::vector<unsigned char> *msg);
         int get_note() const;
         int get_velocity() const;
         int get_channel() const;

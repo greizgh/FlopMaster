@@ -28,8 +28,7 @@ using namespace std;
 void callback(double deltatime, std::vector< unsigned char > *message, void *userdata)
 {
     ardflop *bridge = (ardflop*)(userdata);
-    std::vector<unsigned char> midi = *message;
-    ardmidi midimsg(midi);
+    ardmidi midimsg(message);
     bridge->processmidi(midimsg);
 }
 

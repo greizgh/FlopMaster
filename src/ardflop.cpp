@@ -36,7 +36,7 @@ unsigned int const ardflop::microperiods[] = {
     239,225,213,201,190,179,169,159,150,142,134,127
 };
 
-ardflop::ardflop(const std::string PortName, int poolsize) : ardmon(), corrector(0), serialcom(PortName), dispatchnotes(false)
+ardflop::ardflop(const std::string PortName, int poolsize) : ardmon(), corrector(1), serialcom(PortName), dispatchnotes(false)
 {
     if(poolsize>0)
         dispatchnotes=true;
@@ -44,26 +44,29 @@ ardflop::ardflop(const std::string PortName, int poolsize) : ardmon(), corrector
 }
 void ardflop::processmidi(ardmidi message)
 {
-    if(dispatchnotes==false)
+    midistatus::signal msgstatus=message.get_status();
+    if (msgstatus!=midistatus::UNKNOWN)
     {
-        unsigned short period=0;
-
-        //Convert midi channel to arduino pin by multiplying by 2
-        char pin = (char)(2*(message.get_channel()));
-        if(message.get_status()==midistatus::NOTE_ON)
+        if(dispatchnotes==false)
         {
-            period = microperiods[message.get_note()]/(ARD_RESOLUTION)*corrector;
-            ardmon.note_on_signal(pin, message.get_note(), period);
+            unsigned short period=0;
+
+            //Convert midi channel to arduino pin by multiplying by 2
+            char pin = (char)(2*(message.get_channel()));
+            if(message.get_status()==midistatus::NOTE_ON)
+            {
+                period = microperiods[message.get_note()]/(ARD_RESOLUTION)*corrector;
+                ardmon.note_on_signal(pin, message.get_note(), period);
+            }
+            else if(message.get_status()==midistatus::NOTE_OFF){
+                period = 0;
+                ardmon.note_off_signal(pin);
+            }
+            serialcom.play(pin, period);
         }
-        else {
-            //note off
-            period = 0;
-            ardmon.note_off_signal(pin);
-        }
-        serialcom.play(pin, period);
+        else
+            dispatch(message);
     }
-    else
-        dispatch(message);
 }
 void ardflop::dispatch(ardmidi message)
 {
@@ -82,8 +85,8 @@ void ardflop::dispatch(ardmidi message)
                 played=true;
             }
         }
-        /*if(played==false)
-            //signal that we couldn't have played the note*/
+        if(played==false)
+            ardmon.pool_note_drop(message.get_note());
     }
     else if(message.get_status()==midistatus::NOTE_OFF)
     {
