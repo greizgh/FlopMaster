@@ -29,7 +29,7 @@ class flopcom
         boost::asio::io_service ios;
         boost::asio::serial_port serial;
         void handler(const boost::system::error_code& error);
-        void send(char message[]);
+        void send(std::vector<char> message);
     public:
         flopcom(const std::string PortName);
         ~flopcom();

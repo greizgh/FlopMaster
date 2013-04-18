@@ -79,10 +79,11 @@ void ardflop::dispatch(ardmidi message)
             {
                 pool[i]=message.get_note();
                 unsigned short period = microperiods[message.get_note()]/(ARD_RESOLUTION)*corrector;
-                char pin = i*2;
+                char pin = (i+1)*2;
                 ardmon.note_on_signal(pin, message.get_note(), period);
                 serialcom.play(pin, period);
                 played=true;
+                break;
             }
         }
         if(played==false)
@@ -95,7 +96,7 @@ void ardflop::dispatch(ardmidi message)
             if(pool[i]==message.get_note())
             {
                 pool[i]=0;
-                char pin = i*2;
+                char pin = (i+1)*2;
                 ardmon.note_off_signal(pin);
                 serialcom.play(pin, 0);
             }

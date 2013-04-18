@@ -18,6 +18,7 @@
 #ifndef ARDMONITOR_H
 #define ARDMONITOR_H
 #include <iostream>
+#include <vector>
 class ardmonitor
 {
     private:
@@ -31,7 +32,7 @@ class ardmonitor
         ardmonitor(std::ostream &output);
         void note_on_signal(int pin, int note, int period);
         void note_off_signal(int pin);
-        void serial_send_signal(char message[]);
+        void serial_send_signal(std::vector<char> message);
         void pool_note_drop(int note);
         void print_stats();
 };

@@ -17,7 +17,7 @@
  */
 #include "ardmidi.hpp"
 #include <vector>
-ardmidi::ardmidi(std::vector<unsigned char> *message) :  msg_status(midistatus::UNKNOWN)
+ardmidi::ardmidi(std::vector<unsigned char> *message) :  msg_status(midistatus::UNKNOWN), note(0), channel(0), velocity(0)
 {
     if(message->size()>=3)
     {

@@ -17,6 +17,7 @@
  */
 #include "flopcom.hpp"
 #include "monitor.hpp"
+#include <vector>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
@@ -41,20 +42,20 @@ void flopcom::handler(const boost::system::error_code& error)
     if(error)
         std::cerr<<error.message()<<std::endl;
 }
-void flopcom::send(char message[])
+void flopcom::send(std::vector<char> message)
 {
-    boost::asio::async_write(serial, boost::asio::buffer(message, sizeof(message)),boost::bind(&flopcom::handler,this,boost::asio::placeholders::error));
+    boost::asio::async_write(serial, boost::asio::buffer(message, message.size()),boost::bind(&flopcom::handler,this,boost::asio::placeholders::error));
     ardmon.serial_send_signal(message);
 }
 void flopcom::play(char pin, unsigned short period)
 {
     char p1 = (char)(period & 0x00ff);
     char p2 = (char)(period & 0xff00);
-    char msg[]={pin, p1, p2};
+    std::vector<char> msg ({pin, p1, p2});
     send(msg);
 }
 void flopcom::reset()
 {
-    char message[] = {100};
+    std::vector<char> message ({100});
     send(message);
 }

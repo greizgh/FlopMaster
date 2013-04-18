@@ -19,6 +19,7 @@
 #include "fm_config.h"
 #include <iostream>
 #include <iomanip>
+#include <vector>
 ardmonitor::ardmonitor() : note_on_played(0), note_on_received(0), note_off_received(0), outpt(std::cout)
 {
 }
@@ -55,9 +56,9 @@ void ardmonitor::print_stats()
      *}
      */
 }
-void ardmonitor::serial_send_signal(char message[])
+void ardmonitor::serial_send_signal(std::vector<char> message)
 {
-    if(sizeof(message)>=3 && fm_DEBUG)
+    if(message.size()>=3 && fm_DEBUG)
     {
         outpt<<"Sent: "<<std::showbase<<std::hex<<(unsigned int)(unsigned char)(message[0])<<", "<<(unsigned int)(unsigned char)(message[1])<<", "<<(unsigned int)(unsigned char)(message[2])<<std::dec<<std::endl;
     }
