@@ -20,20 +20,38 @@
 #include "monitor.hpp"
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
+//! Serial communication class
+/*!
+ * Flopcom handle serial communication with the microcontroller
+ */
 class flopcom
 {
     private:
         ardmonitor ardmon;
         //Serial relative members
-        const std::string devname;
+        const std::string devname;/*!< name of the serial port */
         boost::asio::io_service ios;
         boost::asio::serial_port serial;
         void handler(const boost::system::error_code& error);
+        /*!
+         * Send data over serial.
+         * \param message data to be sent
+         */
         void send(std::vector<char> message);
     public:
         flopcom(const std::string PortName);
         ~flopcom();
+        /*!
+         * Send a reset signal to the microcontroller.
+         * Code send: 0x64.
+         */
         void reset();
+        /*!
+         * Turn pin and period information into data
+         * that can be sent through serial. Call flopcom::send()
+         * \param pin the pin which will send pulse
+         * \param period the period between two pulses
+         */
         void play(char pin, unsigned short period);
 };
 #endif

@@ -20,7 +20,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-ardmonitor::ardmonitor() : note_on_played(0), note_on_received(0), note_off_received(0), outpt(std::cout)
+ardmonitor::ardmonitor() : note_on_played(0), note_on_received(0), note_off_received(0), note_dropped(0), outpt(std::cout)
 {
 }
 ardmonitor::ardmonitor(std::ostream &output=std::cout) : note_on_played(0), note_on_received(0), note_off_received(0), outpt(output)
@@ -45,6 +45,8 @@ void ardmonitor::print_stats()
 {
     outpt<<"Received "<<note_on_received<<" note-on signals."<<std::endl;
     outpt<<"Received "<<note_off_received<<" note-off signals."<<std::endl;
+    if(note_dropped>0)
+        outpt<<"Dropped "<<note_dropped<<" notes due to pool overflow."<<std::endl;
     /*
      * No more used, since we have periods from C0 to B4
      *outpt<<"Really played "<<note_on_played<<" notes."<<std::endl;
@@ -67,6 +69,7 @@ void ardmonitor::serial_send_signal(std::vector<char> message)
 }
 void ardmonitor::pool_note_drop(int note)
 {
+    note_dropped++;
     if(fm_DEBUG)
         outpt<<"[Pool] overflow, note dropped: "<<note<<std::endl;
 }

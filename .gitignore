@@ -9,3 +9,4 @@ arduino/FlopMaster.hex
 *.o
 src/fm_config.cpp
 build
+doc/

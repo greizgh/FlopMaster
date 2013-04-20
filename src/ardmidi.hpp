@@ -20,24 +20,34 @@
 #include <vector>
 namespace midistatus
 {
+    //! Midi message type
     enum signal {
-        UNKNOWN,
-        NOTE_ON,
-        NOTE_OFF
+        UNKNOWN,/*!< Any message other than note-on/off */
+        NOTE_ON,/*!< Note-on message */
+        NOTE_OFF/*!< Note-off message */
     };
 }
+//! Small but convenient class to represent a midi event
 class ardmidi
 {
     private:
-        int note;
-        int velocity;
-        int channel;
-        midistatus::signal msg_status;
+        int note;/*!< midi note code */
+        int velocity;/*!< midi event velocity */
+        int channel;/*!< midi channel */
+        midistatus::signal msg_status;/*!< type of event */
     public:
+        /*!
+         * Constructor
+         * \param msg pointer to a midi message as returned by RtMidi
+         */
         ardmidi(std::vector<unsigned char> *msg);
+        //! \return event's note if any, 0 otherwise
         int get_note() const;
+        //! \return event's velocity if any, 0 otherwise
         int get_velocity() const;
+        //! \return event's channel
         int get_channel() const;
+        //! \return event's type
         midistatus::signal get_status() const;
 };
 #endif

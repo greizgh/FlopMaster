@@ -22,26 +22,41 @@
 #include "monitor.hpp"
 #include "ardmidi.hpp"
 #include "flopcom.hpp"
+//! Convert midi to floppy-drives friendly messages
 class ardflop
 {
     private:
         //Midi play
-        float corrector;
-        bool dispatchnotes;
-        std::vector<unsigned short> pool;
+        float corrector;/*!< Correction factor used to transpose notes*/
+        bool dispatchnotes;/*!< Do we pool drives ?*/
+        std::vector<unsigned short> pool;/*!< vector that keep track of notes beeing pooled*/
+        /*!
+         * Dispatch notes in the pool
+         * \param messages midi event
+         */
         void dispatch(ardmidi message);
         //Monitor
-        ardmonitor ardmon;
+        ardmonitor ardmon;/*!< Debug monitor*/
         //Serial com
-        flopcom serialcom;
+        flopcom serialcom;/*!< Serial device handler*/
         //arduino relative members
-        static const unsigned int microperiods[];
-        static const int ARD_RESOLUTION;
+        static const unsigned int microperiods[];/*!< Array of periods corresponding to midi notes*/
+        static const int ARD_RESOLUTION;/*!< Time in µs between two interruptions on the microcontroller*/
 
     public:
+        /*!
+         * \param PortName name of the serial device
+         * \param poolsize number of drives in the pool
+         */
         ardflop(const std::string PortName, int poolsize);
         ~ardflop();
+        /*!
+         * Transpose notes played by the drives
+         */
         void transpose(int octave);
+        /*!
+         * Midi message handler, called by RtMidi callback
+         */
         void processmidi(ardmidi message);
 };
 #endif
