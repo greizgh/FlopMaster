@@ -22,6 +22,14 @@ The code as been written to be as cross-platform as possible, it relies on [Boos
 Makefile generation is handled by cmake.
 For now, it has only been built and tested on a linux box, feel free to contribute to make FlopMaster cross-platform.
 
+Once you cloned the repository, follow these steps:
+
+    cd <repo path>
+    mkdir build
+    cd build
+    cmake ..
+    make
+
 ###Microcontroller side
 The code originally targeted atmega328p on arduino board, but you surely can adapt it to other similar microcontrollers.
 
