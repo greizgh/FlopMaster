@@ -20,10 +20,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-ardmonitor::ardmonitor() : note_on_played(0), note_on_received(0), note_off_received(0), note_dropped(0), outpt(std::cout)
-{
-}
-ardmonitor::ardmonitor(std::ostream &output=std::cout) : note_on_played(0), note_on_received(0), note_off_received(0), outpt(output)
+ardmonitor::ardmonitor(std::ostream &output) : note_on_played(0), note_on_received(0), note_off_received(0), outpt(output)
 {
 }
 void ardmonitor::note_off_signal(int pin)

@@ -35,8 +35,7 @@ class ardmonitor
         unsigned int note_on_played; /*!< number of notes played: non null period */
         unsigned int note_dropped; /*!< number of notes dropped due to pool overflow */
     public:
-        ardmonitor();
-        ardmonitor(std::ostream &output);
+        ardmonitor(std::ostream &output=std::cout);
         /*!
          * Member called when a note-on signal is received.
          * \param pin the output pin on which the pulse will be sent.
