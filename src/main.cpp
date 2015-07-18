@@ -20,7 +20,6 @@
 #include "ardflop.hpp"
 #include "ardmidi.hpp"
 #include "RtMidi/RtMidi.h"
-#include "RtMidi/RtError.h"
 #include "fm_config.h"
 #include <boost/program_options.hpp>
 namespace po=boost::program_options;
@@ -132,7 +131,7 @@ int main(int argc, char* argv[])
                 std::cin.get(input);
             }
         }
-        catch (RtError &error) {
+        catch (RtMidiError &error) {
             error.printMessage();
         }
         delete bridge;
