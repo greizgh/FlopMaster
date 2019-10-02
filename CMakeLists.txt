@@ -58,4 +58,4 @@ target_link_libraries(
     ${Boost_LIBRARIES}
     )
 
-install(TARGETS FlopMaster)
+install(TARGETS FlopMaster RUNTIME DESTINATION bin)
