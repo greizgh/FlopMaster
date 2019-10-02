@@ -57,3 +57,5 @@ target_link_libraries(
     ${CMAKE_THREAD_LIBS_INIT}
     ${Boost_LIBRARIES}
     )
+
+install(TARGETS FlopMaster)
