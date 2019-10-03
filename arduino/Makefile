@@ -17,7 +17,7 @@
 TARGET = FlopMaster
 MCU = atmega328p
 CPU_FREQ = 16000000UL
-PORT = /dev/ttyACM0
+PORT ?= /dev/ttyACM0
 
 CC = avr-gcc
 OBJCOPY = avr-objcopy
