@@ -31,13 +31,19 @@ void callback(double deltatime, std::vector< unsigned char > *message, void *use
     bridge->processmidi(midimsg);
 }
 
-bool chooseMidiPort( RtMidiIn *rtmidi )
+bool chooseMidiPort( RtMidiIn *rtmidi, bool openVirtual )
 {
-  std::cout << "\nWould you like to open a virtual input port? [y/N] ";
-
   std::string keyHit;
-  std::getline( std::cin, keyHit );
-  if ( keyHit == "y" ) {
+  bool virtualPort = openVirtual;
+  if (!openVirtual) {
+    std::cout << "\nWould you like to open a virtual input port? [y/N] ";
+    std::getline( std::cin, keyHit );
+    if ( keyHit == "y" ) {
+      virtualPort = true;
+    }
+  }
+
+  if (virtualPort) {
     rtmidi->openVirtualPort("FlopMaster");
     return true;
   }
@@ -80,6 +86,7 @@ int main(int argc, char* argv[])
         ("port,p",po::value<string>(&port),"specify serial port to use")
         ("transpose,t",po::value<int>(&octave),"transpose notes of specified octave")
         ("dispatch,d",po::value<int>(&poolsize),"dispatch notes between given number of drives")
+        ("open-virtual,o","open a virtual port")
         ("verbose,V","display some debug info")
         ("help,h","show this message")
         ("version,v","show version information");
@@ -118,7 +125,7 @@ int main(int argc, char* argv[])
         bridge->transpose(octave);
         try {
             midiin = new RtMidiIn();
-            if (chooseMidiPort(midiin)!=false)
+            if (chooseMidiPort(midiin, vm.count("open-virtual"))!=false)
             {
                 midiin->setCallback(&callback, bridge);
                 midiin->ignoreTypes(false, false, false);
