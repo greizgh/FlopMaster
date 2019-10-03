@@ -233,20 +233,6 @@ char uart_getchar() {
     loop_until_bit_is_set(UCSR0A, RXC0); // Wait until data exists.
     return UDR0;
 }
-void setup(){
-    //Set ports in output mode
-    DDRB = 0xFF;
-    DDRC = 0xFF;
-    DDRD = 0xFF;
-    //Clear outputs
-    PORTB = 0x00;
-    PORTC = 0x00;
-    PORTD = 0x00;
-    //Enable serial
-    uart_init();
-    timer_init();
-    sei();
-}
 void reset(){
     //Disable interrupt
     cli();
@@ -266,6 +252,17 @@ void reset(){
         _delay_ms(5);
     }
 }
+void setup(){
+    //Set ports in output mode
+    DDRB = 0xFF;
+    DDRC = 0xFF;
+    DDRD = 0xFF;
+    reset();
+    //Enable serial
+    uart_init();
+    timer_init();
+    sei();
+}
 int main() { 
 
     setup();
@@ -281,7 +278,7 @@ int main() {
             status.period[(uint8_t)input]=(period);
         }
         else {
-            reset();
+            // reboot
             break;
         }
     }
